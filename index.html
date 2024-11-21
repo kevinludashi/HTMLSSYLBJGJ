@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码实时编辑预览工具 1.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+        }
+        #editor {
+            flex: 1;
+            background-color: #f0f0f0;
+            border-right: 1px solid #ddd;
+            padding: 10px;
+            overflow: auto;
+            resize: horizontal;
+            min-width: 300px;
+            box-sizing: border-box;
+        }
+        #preview {
+            flex: 1;
+            padding: 10px;
+            background-color: #fff;
+            overflow: auto;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-family: monospace;
+            font-size: 16px;
+            background-color: #fff;
+            resize: none;
+        }
+        .file-upload {
+            margin: 20px 0;
+            padding: 5px;
+        }
+        .preview-btn, .save-btn {
+            margin: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .preview-btn:hover, .save-btn:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+            }
+            #editor, #preview {
+                width: 100%;
+                height: 50vh;
+            }
+            .preview-btn, .save-btn {
+                width: 100%;
+            }
+        }
+		
+		h2{
+			font-size: 16px;
+			margin: -10px;
+			padding: 15px;
+		}
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="editor">
+        <h2>【代码实时编辑预览工具 1.0】输入或上传代码</h2>
+        <div class="file-upload">
+            <input type="file" id="fileInput" accept=".html,.htm,.txt">
+        </div>
+        <textarea id="codeInput" placeholder="在这里输入HTML代码"></textarea>
+    </div>
+    <div id="preview">
+        
+        <iframe id="iframePreview" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+</div>
+
+<button class="preview-btn" onclick="openInNewTab()">在新标签页预览</button>
+<button class="save-btn" onclick="saveFile()">保存为HTML文件</button>
+
+<script>
+    // 获取HTML元素
+    const codeInput = document.getElementById('codeInput');
+    const iframePreview = document.getElementById('iframePreview');
+    const fileInput = document.getElementById('fileInput');
+
+    // 更新预览
+    function updatePreview() {
+        const code = codeInput.value;
+        iframePreview.srcdoc = code;
+    }
+
+    // 监听代码输入
+    codeInput.addEventListener('input', updatePreview);
+
+    // 监听文件上传
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                codeInput.value = reader.result;
+                updatePreview();
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // 在新标签页打开预览
+    function openInNewTab() {
+        const code = codeInput.value;
+        const newWindow = window.open();
+        newWindow.document.write(code);
+        newWindow.document.close();
+    }
+
+    // 保存当前代码为HTML文件
+    function saveFile() {
+        const code = codeInput.value;
+        const blob = new Blob([code], { type: 'text/html' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'your_code.html'; // 下载时文件名
+        link.click();
+    }
+</script>
+
+</body>
+</html>
